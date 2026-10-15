@@ -1,4 +1,4 @@
--- THUNDER BUTTON HUB v3 | Gerçek Toggle + Keysiz Prison Life
+-- THUNDER BUTTON HUB v4 | Prison Life + MM2 + Aimbot (Toggle + Key)
 -- Loadstring ile çalıştırılabilir
 
 local Players = game:GetService("Players")
@@ -124,8 +124,8 @@ TBC.Parent = ToggleBtn
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.new(0, 220, 0, 180)
-Main.Position = UDim2.new(0.5, -110, 0.5, -90)
+Main.Size = UDim2.new(0, 220, 0, 230)
+Main.Position = UDim2.new(0.5, -110, 0.5, -115)
 Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 Main.BorderSizePixel = 0
 Main.Active = true
@@ -155,48 +155,43 @@ local TitleCorner = Instance.new("UICorner")
 TitleCorner.CornerRadius = UDim.new(0, 10)
 TitleCorner.Parent = Title
 
-local PrisonBtn = Instance.new("TextButton")
-PrisonBtn.Size = UDim2.new(1, -20, 0, 45)
-PrisonBtn.Position = UDim2.new(0, 10, 0, 46)
-PrisonBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-PrisonBtn.Text = "PRISON LIFE: KAPALI"
-PrisonBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-PrisonBtn.Font = Enum.Font.GothamBold
-PrisonBtn.TextSize = 13
-PrisonBtn.Parent = Main
+-- ==================== BUTONLAR ====================
+local function CreateButton(text, posY)
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(1, -20, 0, 40)
+    Btn.Position = UDim2.new(0, 10, 0, posY)
+    Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    Btn.Text = text
+    Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Btn.Font = Enum.Font.GothamBold
+    Btn.TextSize = 12
+    Btn.Parent = Main
+    
+    local BtnCorner = Instance.new("UICorner")
+    BtnCorner.CornerRadius = UDim.new(0, 6)
+    BtnCorner.Parent = Btn
+    
+    return Btn
+end
 
-local PrisonCorner = Instance.new("UICorner")
-PrisonCorner.CornerRadius = UDim.new(0, 6)
-PrisonCorner.Parent = PrisonBtn
-
-local AimBtn = Instance.new("TextButton")
-AimBtn.Size = UDim2.new(1, -20, 0, 45)
-AimBtn.Position = UDim2.new(0, 10, 0, 100)
-AimBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-AimBtn.Text = "AIMBOT: KAPALI"
-AimBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-AimBtn.Font = Enum.Font.GothamBold
-AimBtn.TextSize = 13
-AimBtn.Parent = Main
-
-local AimCorner = Instance.new("UICorner")
-AimCorner.CornerRadius = UDim.new(0, 6)
-AimCorner.Parent = AimBtn
+local PrisonBtn = CreateButton("PRISON LIFE: KAPALI", 46)
+local MM2Btn = CreateButton("MM2: KAPALI", 92)
+local AimBtn = CreateButton("AIMBOT: KAPALI", 138)
+local AutoFarmBtn = CreateButton("AUTOFARM: KAPALI", 184)
 
 ToggleBtn.MouseButton1Click:Connect(function()
     Main.Visible = not Main.Visible
 end)
 
--- ==================== PRISON LIFE (KEYSİZ) ====================
+-- ==================== TOGGLE MANTIĞI ====================
 local prisonYuklendi = false
 local prisonAktif = false
 
 PrisonBtn.MouseButton1Click:Connect(function()
     if not prisonYuklendi then
-        PrisonBtn.Text = "YÜKLENİYOR..."
+        PrisonBtn.Text = "PRISON LIFE: YÜKLENİYOR..."
         PrisonBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 0)
         local ok, err = pcall(function()
-            -- Nexus Hub V3 (keysiz Prison Life)
             loadstring(game:HttpGet("https://raw.githubusercontent.com/robloxscripter6245366542/Morsecodev/refs/heads/main/Nexus%20v3%20made%20by%20universal%20studio"))()
         end)
         if ok then
@@ -205,7 +200,7 @@ PrisonBtn.MouseButton1Click:Connect(function()
             PrisonBtn.Text = "PRISON LIFE: AÇIK"
             PrisonBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
         else
-            PrisonBtn.Text = "HATA"
+            PrisonBtn.Text = "PRISON LIFE: HATA"
             PrisonBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
             warn("Prison Life hatası: " .. tostring(err))
         end
@@ -221,16 +216,45 @@ PrisonBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+local mm2Yuklendi = false
+local mm2Aktif = false
+
+MM2Btn.MouseButton1Click:Connect(function()
+    if not mm2Yuklendi then
+        MM2Btn.Text = "MM2: YÜKLENİYOR..."
+        MM2Btn.BackgroundColor3 = Color3.fromRGB(100, 50, 0)
+        local ok, err = pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/hoh0x/ReeferzHub/main/Main"))()
+        end)
+        if ok then
+            mm2Yuklendi = true
+            mm2Aktif = true
+            MM2Btn.Text = "MM2: AÇIK"
+            MM2Btn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+        else
+            MM2Btn.Text = "MM2: HATA"
+            MM2Btn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+            warn("MM2 hatası: " .. tostring(err))
+        end
+    else
+        mm2Aktif = not mm2Aktif
+        if mm2Aktif then
+            MM2Btn.Text = "MM2: AÇIK"
+            MM2Btn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+        else
+            MM2Btn.Text = "MM2: KAPALI"
+            MM2Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+        end
+    end
+end)
+
 -- ==================== AIMBOT (GERÇEK TOGGLE) ====================
 local aimAktif = false
-local Config = {
-    FOV = 150,
-    Smoothness = 0.15,
-}
+local AimbotConfig = { FOV = 200, Smoothness = 0.2 }
 
 local function GetClosestTarget()
     local closest = nil
-    local shortest = Config.FOV
+    local shortest = AimbotConfig.FOV
     local mousePos = UIS:GetMouseLocation()
 
     for _, player in ipairs(Players:GetPlayers()) do
@@ -260,7 +284,7 @@ RunService.RenderStepped:Connect(function()
         local hrp = target.Character:FindFirstChild("HumanoidRootPart")
         if hrp then
             local newCFrame = CFrame.new(Camera.CFrame.Position, hrp.Position)
-            Camera.CFrame = Camera.CFrame:Lerp(newCFrame, Config.Smoothness)
+            Camera.CFrame = Camera.CFrame:Lerp(newCFrame, AimbotConfig.Smoothness)
         end
     end
 end)
@@ -276,10 +300,41 @@ AimBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- ==================== AUTOFARM ====================
+local autoFarmAktif = false
+
+AutoFarmBtn.MouseButton1Click:Connect(function()
+    autoFarmAktif = not autoFarmAktif
+    if autoFarmAktif then
+        AutoFarmBtn.Text = "AUTOFARM: AÇIK"
+        AutoFarmBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+        task.spawn(function()
+            while autoFarmAktif do
+                local coinContainer = Workspace:FindFirstChild("CoinContainer")
+                if coinContainer then
+                    for _, coin in ipairs(coinContainer:GetChildren()) do
+                        if autoFarmAktif and coin:IsA("BasePart") then
+                            local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                hrp.CFrame = CFrame.new(coin.Position + Vector3.new(0, 3, 0))
+                                task.wait(0.1)
+                            end
+                        end
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    else
+        AutoFarmBtn.Text = "AUTOFARM: KAPALI"
+        AutoFarmBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    end
+end)
+
 pcall(function()
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "THUNDER HUB v3",
-        Text = "Key: 31 | Aimbot artık gerçekten kapanıyor.",
+        Title = "THUNDER HUB v4",
+        Text = "Prison Life + MM2 + Aimbot + AutoFarm hazır. Key: 31",
         Duration = 6
     })
 end)
