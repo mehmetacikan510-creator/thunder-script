@@ -1,15 +1,19 @@
--- THUNDER BUTTON HUB | Prison Life (Keysiz) + Aimbot (Toggle + Key)
+-- THUNDER BUTTON HUB v2 | Menü Aç/Kapat + Key 31 + Toggle
 -- Loadstring ile çalıştırılabilir
 
 local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 -- ==================== KEY SİSTEMİ ====================
+local KEY_DOGRU = "31"
+local keyGirildi = false
+
 local function KeyKontrol()
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "THUNDER_KEY"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    local KeyGui = Instance.new("ScreenGui")
+    KeyGui.Name = "THUNDER_KEY"
+    KeyGui.ResetOnSpawn = false
+    KeyGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
     local Frame = Instance.new("Frame")
     Frame.Size = UDim2.new(0, 280, 0, 150)
@@ -18,7 +22,7 @@ local function KeyKontrol()
     Frame.BorderSizePixel = 0
     Frame.Active = true
     Frame.Draggable = true
-    Frame.Parent = ScreenGui
+    Frame.Parent = KeyGui
 
     local Corner = Instance.new("UICorner")
     Corner.CornerRadius = UDim.new(0, 10)
@@ -71,14 +75,13 @@ local function KeyKontrol()
     BC.CornerRadius = UDim.new(0, 6)
     BC.Parent = Btn
 
-    local dogrulandi = false
     Btn.MouseButton1Click:Connect(function()
-        if Input.Text == "31" then
-            dogrulandi = true
+        if Input.Text == KEY_DOGRU then
+            keyGirildi = true
             Btn.Text = "DOĞRU"
             Btn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-            task.wait(0.5)
-            ScreenGui:Destroy()
+            task.wait(0.4)
+            KeyGui:Destroy()
         else
             Btn.Text = "YANLIŞ KEY"
             Btn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
@@ -87,37 +90,60 @@ local function KeyKontrol()
             Btn.BackgroundColor3 = Color3.fromRGB(180, 20, 20)
         end
     end)
-
-    while not dogrulandi do
-        task.wait(0.1)
-    end
 end
 
 KeyKontrol()
 
--- ==================== GUI ====================
+while not keyGirildi do
+    task.wait(0.1)
+end
+
+-- ==================== MENÜ AÇ/KAPAT BUTONU ====================
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "THUNDER_BUTTONS"
+ScreenGui.Name = "THUNDER_MENU"
 ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Position = UDim2.new(1, -70, 0, 60)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 20)
+ToggleBtn.Text = "T"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.TextSize = 20
+ToggleBtn.Parent = ScreenGui
+
+local TBC = Instance.new("UICorner")
+TBC.CornerRadius = UDim.new(1, 0)
+TBC.Parent = ToggleBtn
+
+local TBStroke = Instance.new("UIStroke")
+TBStroke.Color = Color3.fromRGB(255, 100, 100)
+TBStroke.Thickness = 2
+TBStroke.Parent = ToggleBtn
+
+-- ==================== ANA MENÜ ====================
 local Main = Instance.new("Frame")
+Main.Name = "Main"
 Main.Size = UDim2.new(0, 220, 0, 180)
 Main.Position = UDim2.new(0.5, -110, 0.5, -90)
 Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 Main.BorderSizePixel = 0
 Main.Active = true
 Main.Draggable = true
+Main.Visible = false
 Main.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = UDim.new(0, 10)
 MainCorner.Parent = Main
 
-local Stroke = Instance.new("UIStroke")
-Stroke.Color = Color3.fromRGB(255, 30, 30)
-Stroke.Thickness = 1.5
-Stroke.Parent = Main
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(255, 30, 30)
+MainStroke.Thickness = 1.5
+MainStroke.Parent = Main
 
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 36)
@@ -160,6 +186,11 @@ local AimCorner = Instance.new("UICorner")
 AimCorner.CornerRadius = UDim.new(0, 6)
 AimCorner.Parent = AimBtn
 
+-- ==================== MENÜ AÇ/KAPAT ====================
+ToggleBtn.MouseButton1Click:Connect(function()
+    Main.Visible = not Main.Visible
+end)
+
 -- ==================== TOGGLE MANTIĞI ====================
 local prisonYuklendi = false
 local aimYuklendi = false
@@ -171,7 +202,6 @@ PrisonBtn.MouseButton1Click:Connect(function()
         PrisonBtn.Text = "YÜKLENİYOR..."
         PrisonBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 0)
         local ok, err = pcall(function()
-            -- Keysiz Sportsclub (Prison Life)
             loadstring(game:HttpGet("https://scripts.getv3.lol/sportsclub.luau"))()
         end)
         if ok then
@@ -227,8 +257,8 @@ end)
 
 pcall(function()
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "THUNDER HUB",
-        Text = "Prison Life (keysiz) ve Aimbot hazır. Key: 31",
-        Duration = 5
+        Title = "THUNDER HUB v2",
+        Text = "Key: 31 | Sağ üstteki T butonu menüyü açar/kapatır.",
+        Duration = 6
     })
 end)
