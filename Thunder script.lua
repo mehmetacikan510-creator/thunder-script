@@ -1,9 +1,10 @@
--- THUNDER BUTTON HUB v4 | Prison Life + MM2 + Aimbot (Toggle + Key)
+-- THUNDER BUTTON HUB v5 | Prison Life + MM2 (RuzHub) + Aimbot + AutoFarm + Radyo
 -- Loadstring ile çalıştırılabilir
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 local Camera = Workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
@@ -124,8 +125,8 @@ TBC.Parent = ToggleBtn
 
 local Main = Instance.new("Frame")
 Main.Name = "Main"
-Main.Size = UDim2.new(0, 220, 0, 230)
-Main.Position = UDim2.new(0.5, -110, 0.5, -115)
+Main.Size = UDim2.new(0, 220, 0, 280)
+Main.Position = UDim2.new(0.5, -110, 0.5, -140)
 Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 Main.BorderSizePixel = 0
 Main.Active = true
@@ -158,32 +159,33 @@ TitleCorner.Parent = Title
 -- ==================== BUTONLAR ====================
 local function CreateButton(text, posY)
     local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(1, -20, 0, 40)
+    Btn.Size = UDim2.new(1, -20, 0, 38)
     Btn.Position = UDim2.new(0, 10, 0, posY)
     Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
     Btn.Text = text
     Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
     Btn.Font = Enum.Font.GothamBold
-    Btn.TextSize = 12
+    Btn.TextSize = 11
     Btn.Parent = Main
-    
+
     local BtnCorner = Instance.new("UICorner")
     BtnCorner.CornerRadius = UDim.new(0, 6)
     BtnCorner.Parent = Btn
-    
+
     return Btn
 end
 
 local PrisonBtn = CreateButton("PRISON LIFE: KAPALI", 46)
-local MM2Btn = CreateButton("MM2: KAPALI", 92)
-local AimBtn = CreateButton("AIMBOT: KAPALI", 138)
-local AutoFarmBtn = CreateButton("AUTOFARM: KAPALI", 184)
+local MM2Btn = CreateButton("MM2 (RUZHUB): KAPALI", 90)
+local AimBtn = CreateButton("AIMBOT: KAPALI", 134)
+local AutoFarmBtn = CreateButton("AUTOFARM: KAPALI", 178)
+local RadioBtn = CreateButton("RADYO ÇALAR", 222)
 
 ToggleBtn.MouseButton1Click:Connect(function()
     Main.Visible = not Main.Visible
 end)
 
--- ==================== TOGGLE MANTIĞI ====================
+-- ==================== PRISON LIFE ====================
 local prisonYuklendi = false
 local prisonAktif = false
 
@@ -216,6 +218,7 @@ PrisonBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- ==================== MM2 (RUZHUB) ====================
 local mm2Yuklendi = false
 local mm2Aktif = false
 
@@ -224,7 +227,8 @@ MM2Btn.MouseButton1Click:Connect(function()
         MM2Btn.Text = "MM2: YÜKLENİYOR..."
         MM2Btn.BackgroundColor3 = Color3.fromRGB(100, 50, 0)
         local ok, err = pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/hoh0x/ReeferzHub/main/Main"))()
+            -- RuzHub MM2 (keysiz, silent aim + autofarm)
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/draconiosfr-design/RuzHub-mm2/refs/heads/main/RuzHubmm2.lua.txt"))()
         end)
         if ok then
             mm2Yuklendi = true
@@ -300,8 +304,30 @@ AimBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- ==================== AUTOFARM ====================
+-- ==================== AUTOFARM (MM2 - DÜZELTİLMİŞ) ====================
 local autoFarmAktif = false
+
+local function FindNearestCoin()
+    local coinContainer = Workspace:FindFirstChild("CoinContainer")
+    if not coinContainer then return nil end
+
+    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return nil end
+
+    local nearest = nil
+    local shortest = math.huge
+
+    for _, coin in ipairs(coinContainer:GetChildren()) do
+        if coin:IsA("BasePart") and coin:FindFirstChild("TouchInterest") then
+            local dist = (coin.Position - hrp.Position).Magnitude
+            if dist < shortest then
+                shortest = dist
+                nearest = coin
+            end
+        end
+    end
+    return nearest
+end
 
 AutoFarmBtn.MouseButton1Click:Connect(function()
     autoFarmAktif = not autoFarmAktif
@@ -310,19 +336,14 @@ AutoFarmBtn.MouseButton1Click:Connect(function()
         AutoFarmBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
         task.spawn(function()
             while autoFarmAktif do
-                local coinContainer = Workspace:FindFirstChild("CoinContainer")
-                if coinContainer then
-                    for _, coin in ipairs(coinContainer:GetChildren()) do
-                        if autoFarmAktif and coin:IsA("BasePart") then
-                            local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                            if hrp then
-                                hrp.CFrame = CFrame.new(coin.Position + Vector3.new(0, 3, 0))
-                                task.wait(0.1)
-                            end
-                        end
-                    end
+                local coin = FindNearestCoin()
+                local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if coin and hrp then
+                    local targetPos = CFrame.new(coin.Position + Vector3.new(0, 3, 0))
+                    hrp.CFrame = targetPos
+                    task.wait(0.15)
                 end
-                task.wait(0.5)
+                task.wait(0.1)
             end
         end)
     else
@@ -331,10 +352,133 @@ AutoFarmBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- ==================== RADYO ÇALAR ====================
+local radioGui = nil
+
+RadioBtn.MouseButton1Click:Connect(function()
+    if radioGui then
+        radioGui:Destroy()
+        radioGui = nil
+        RadioBtn.Text = "RADYO ÇALAR"
+        RadioBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+        return
+    end
+
+    RadioBtn.Text = "RADYO: AÇIK"
+    RadioBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+
+    radioGui = Instance.new("ScreenGui")
+    radioGui.Name = "THUNDER_RADIO"
+    radioGui.ResetOnSpawn = false
+    radioGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+    local RF = Instance.new("Frame")
+    RF.Size = UDim2.new(0, 250, 0, 130)
+    RF.Position = UDim2.new(0.5, -125, 0.5, -65)
+    RF.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+    RF.BorderSizePixel = 0
+    RF.Active = true
+    RF.Draggable = true
+    RF.Parent = radioGui
+
+    local RC = Instance.new("UICorner")
+    RC.CornerRadius = UDim.new(0, 10)
+    RC.Parent = RF
+
+    local RS = Instance.new("UIStroke")
+    RS.Color = Color3.fromRGB(255, 30, 30)
+    RS.Thickness = 1.5
+    RS.Parent = RF
+
+    local RTitle = Instance.new("TextLabel")
+    RTitle.Size = UDim2.new(1, 0, 0, 30)
+    RTitle.BackgroundColor3 = Color3.fromRGB(25, 0, 0)
+    RTitle.Text = "RADYO ÇALAR"
+    RTitle.TextColor3 = Color3.fromRGB(255, 50, 50)
+    RTitle.Font = Enum.Font.GothamBold
+    RTitle.TextSize = 13
+    RTitle.Parent = RF
+
+    local RTC = Instance.new("UICorner")
+    RTC.CornerRadius = UDim.new(0, 10)
+    RTC.Parent = RTitle
+
+    local SongInput = Instance.new("TextBox")
+    SongInput.Size = UDim2.new(1, -20, 0, 35)
+    SongInput.Position = UDim2.new(0, 10, 0, 40)
+    SongInput.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    SongInput.Text = ""
+    SongInput.PlaceholderText = "Roblox Müzik ID gir..."
+    SongInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SongInput.Font = Enum.Font.Gotham
+    SongInput.TextSize = 12
+    SongInput.Parent = RF
+
+    local SIC = Instance.new("UICorner")
+    SIC.CornerRadius = UDim.new(0, 6)
+    SIC.Parent = SongInput
+
+    local PlayBtn = Instance.new("TextButton")
+    PlayBtn.Size = UDim2.new(1, -20, 0, 35)
+    PlayBtn.Position = UDim2.new(0, 10, 0, 85)
+    PlayBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 20)
+    PlayBtn.Text = "ÇAL"
+    PlayBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    PlayBtn.Font = Enum.Font.GothamBold
+    PlayBtn.TextSize = 13
+    PlayBtn.Parent = RF
+
+    local PBC = Instance.new("UICorner")
+    PBC.CornerRadius = UDim.new(0, 6)
+    PBC.Parent = PlayBtn
+
+    local currentSound = nil
+
+    PlayBtn.MouseButton1Click:Connect(function()
+        if currentSound then
+            currentSound:Destroy()
+            currentSound = nil
+        end
+
+        if SongInput.Text ~= "" and tonumber(SongInput.Text) then
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://" .. SongInput.Text
+            sound.Volume = 1
+            sound.Parent = LocalPlayer.Character or Workspace
+            sound:Play()
+            currentSound = sound
+            PlayBtn.Text = "ÇALIYOR..."
+        end
+    end)
+
+    -- Kapatma butonu
+    local CloseRBtn = Instance.new("TextButton")
+    CloseRBtn.Size = UDim2.new(0, 25, 0, 25)
+    CloseRBtn.Position = UDim2.new(1, -30, 0, 3)
+    CloseRBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 20)
+    CloseRBtn.Text = "X"
+    CloseRBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CloseRBtn.Font = Enum.Font.GothamBold
+    CloseRBtn.TextSize = 12
+    CloseRBtn.Parent = RTitle
+
+    local CRC = Instance.new("UICorner")
+    CRC.CornerRadius = UDim.new(0, 5)
+    CRC.Parent = CloseRBtn
+
+    CloseRBtn.MouseButton1Click:Connect(function()
+        if currentSound then currentSound:Destroy() end
+        radioGui:Destroy()
+        radioGui = nil
+        RadioBtn.Text = "RADYO ÇALAR"
+        RadioBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    end)
+end)
+
 pcall(function()
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "THUNDER HUB v4",
-        Text = "Prison Life + MM2 + Aimbot + AutoFarm hazır. Key: 31",
+        Title = "THUNDER HUB v5",
+        Text = "RuzHub + AutoFarm (düzeltildi) + Radyo Çalar hazır.",
         Duration = 6
     })
 end)
