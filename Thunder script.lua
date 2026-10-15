@@ -1,8 +1,11 @@
--- THUNDER BUTTON HUB v2 | Menü Aç/Kapat + Key 31 + Toggle
+-- THUNDER BUTTON HUB v3 | Gerçek Toggle + Keysiz Prison Life
 -- Loadstring ile çalıştırılabilir
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+local Camera = Workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
 -- ==================== KEY SİSTEMİ ====================
@@ -98,7 +101,7 @@ while not keyGirildi do
     task.wait(0.1)
 end
 
--- ==================== MENÜ AÇ/KAPAT BUTONU ====================
+-- ==================== GUI ====================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "THUNDER_MENU"
 ScreenGui.ResetOnSpawn = false
@@ -119,12 +122,6 @@ local TBC = Instance.new("UICorner")
 TBC.CornerRadius = UDim.new(1, 0)
 TBC.Parent = ToggleBtn
 
-local TBStroke = Instance.new("UIStroke")
-TBStroke.Color = Color3.fromRGB(255, 100, 100)
-TBStroke.Thickness = 2
-TBStroke.Parent = ToggleBtn
-
--- ==================== ANA MENÜ ====================
 local Main = Instance.new("Frame")
 Main.Name = "Main"
 Main.Size = UDim2.new(0, 220, 0, 180)
@@ -186,23 +183,21 @@ local AimCorner = Instance.new("UICorner")
 AimCorner.CornerRadius = UDim.new(0, 6)
 AimCorner.Parent = AimBtn
 
--- ==================== MENÜ AÇ/KAPAT ====================
 ToggleBtn.MouseButton1Click:Connect(function()
     Main.Visible = not Main.Visible
 end)
 
--- ==================== TOGGLE MANTIĞI ====================
+-- ==================== PRISON LIFE (KEYSİZ) ====================
 local prisonYuklendi = false
-local aimYuklendi = false
 local prisonAktif = false
-local aimAktif = false
 
 PrisonBtn.MouseButton1Click:Connect(function()
     if not prisonYuklendi then
         PrisonBtn.Text = "YÜKLENİYOR..."
         PrisonBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 0)
         local ok, err = pcall(function()
-            loadstring(game:HttpGet("https://scripts.getv3.lol/sportsclub.luau"))()
+            -- Nexus Hub V3 (keysiz Prison Life)
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/robloxscripter6245366542/Morsecodev/refs/heads/main/Nexus%20v3%20made%20by%20universal%20studio"))()
         end)
         if ok then
             prisonYuklendi = true
@@ -226,39 +221,65 @@ PrisonBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- ==================== AIMBOT (GERÇEK TOGGLE) ====================
+local aimAktif = false
+local Config = {
+    FOV = 150,
+    Smoothness = 0.15,
+}
+
+local function GetClosestTarget()
+    local closest = nil
+    local shortest = Config.FOV
+    local mousePos = UIS:GetMouseLocation()
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+            local humanoid = player.Character:FindFirstChild("Humanoid")
+            if hrp and humanoid and humanoid.Health > 0 then
+                local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+                if onScreen then
+                    local targetPos = Vector2.new(screenPos.X, screenPos.Y)
+                    local distance = (mousePos - targetPos).Magnitude
+                    if distance < shortest then
+                        shortest = distance
+                        closest = player
+                    end
+                end
+            end
+        end
+    end
+    return closest
+end
+
+RunService.RenderStepped:Connect(function()
+    if not aimAktif then return end
+    local target = GetClosestTarget()
+    if target and target.Character then
+        local hrp = target.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local newCFrame = CFrame.new(Camera.CFrame.Position, hrp.Position)
+            Camera.CFrame = Camera.CFrame:Lerp(newCFrame, Config.Smoothness)
+        end
+    end
+end)
+
 AimBtn.MouseButton1Click:Connect(function()
-    if not aimYuklendi then
-        AimBtn.Text = "YÜKLENİYOR..."
-        AimBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 0)
-        local ok, err = pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Pancakes-pan/Roblox-Soft-Aimlock/refs/heads/main/main.lua"))()
-        end)
-        if ok then
-            aimYuklendi = true
-            aimAktif = true
-            AimBtn.Text = "AIMBOT: AÇIK"
-            AimBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
-        else
-            AimBtn.Text = "HATA"
-            AimBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-            warn("Aimbot hatası: " .. tostring(err))
-        end
+    aimAktif = not aimAktif
+    if aimAktif then
+        AimBtn.Text = "AIMBOT: AÇIK"
+        AimBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
     else
-        aimAktif = not aimAktif
-        if aimAktif then
-            AimBtn.Text = "AIMBOT: AÇIK"
-            AimBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
-        else
-            AimBtn.Text = "AIMBOT: KAPALI"
-            AimBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-        end
+        AimBtn.Text = "AIMBOT: KAPALI"
+        AimBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
     end
 end)
 
 pcall(function()
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "THUNDER HUB v2",
-        Text = "Key: 31 | Sağ üstteki T butonu menüyü açar/kapatır.",
+        Title = "THUNDER HUB v3",
+        Text = "Key: 31 | Aimbot artık gerçekten kapanıyor.",
         Duration = 6
     })
 end)
